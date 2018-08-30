@@ -1,0 +1,57 @@
+<p>Orders:</p>
+<div class="container">
+  <div class="card">
+    <div class="card-header">New</div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item" *ngFor="let orderItem of newOrders">
+        {{orderItem.name}} - Tel: {{orderItem.phone}}
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let shoppingCardItem of orderItem.offers">
+            {{shoppingCardItem.amount}} x {{shoppingCardItem.offer.type}} {{shoppingCardItem.offer.name}}
+          </li>
+        </ul>
+        <button type="button" class="btn btn-outline-danger"
+                (click)="setOrderToInProcess(orderItem.orderID)">
+          <fa-icon [icon]="faPlay"></fa-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header">In Process</div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item" *ngFor="let orderItem of inProcessOrders">
+        {{orderItem.name}} - Tel: {{orderItem.phone}}
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let shoppingCardItem of orderItem.offers">
+            {{shoppingCardItem.amount}} x {{shoppingCardItem.offer.type}} {{shoppingCardItem.offer.name}}
+          </li>
+        </ul>
+
+        <button type="button" class="btn btn-outline-danger"
+                (click)="setOrderToDone(orderItem.orderID)">
+          <fa-icon [icon]="faCheck"></fa-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header">Done</div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item" *ngFor="let orderItem of doneOrders">
+        {{orderItem.name}} - Tel: {{orderItem.phone}}
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let shoppingCardItem of orderItem.offers">
+            {{shoppingCardItem.amount}} x {{shoppingCardItem.offer.type}} {{shoppingCardItem.offer.name}}
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+
+
+

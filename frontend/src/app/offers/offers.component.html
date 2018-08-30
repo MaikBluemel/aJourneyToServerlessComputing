@@ -1,0 +1,68 @@
+<p>Offers:</p>
+<div class="container" *ngIf="!!shoppingForm">
+  <form [formGroup]="shoppingForm">
+    <div formArrayName="shoppingCard">
+      <div class="row" *ngFor="let formItem of shoppingCardArray; let i = index">
+
+        <div class="form-inline form-group col-sm-8">
+          <div class="col-sm-1">
+            <label>{{formItem.get('offer').value.type}}</label>
+          </div>
+          <div class="col-sm-1">
+            <label>{{formItem.get('offer').value.name}}</label>
+          </div>
+          <div class="col-sm-2">
+            <label>{{formItem.get('offer').value.price}} €</label>
+          </div>
+
+          <div class="col-sm-2">
+            <input type="number" class="form-control" [formControl]="formItem.get('amount')" min="1" max="10">
+          </div>
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-outline-primary" (click)="addToShoppingCard(i)"
+                    [disabled]="isOnShoppingCard(i)">
+              <fa-icon [icon]="faShoppingCart"></fa-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Warenkorb</div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item" *ngFor="let shoppingItem of shoppingBasket">
+          {{shoppingItem.amount}} x {{shoppingItem.offer.name}} ({{shoppingItem.offer.price}}€)
+
+          <button type="button" class="btn btn-outline-danger"
+                  (click)="removeFromnShoppingCard(shoppingItem.offer.id)">
+            <fa-icon [icon]="faTrash"></fa-icon>
+          </button>
+        </li>
+      </ul>
+      <div class="card-body">
+        <div class="card-text">
+          <p>Bitte tragen Sie Ihre Kontaktdaten ein:</p>
+        </div>
+
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" class="form-control" formControlName="name" maxlength="64">
+        </div>
+        <div class="form-group">
+          <label for="phone">Telefon</label>
+          <input type="text" class="form-control" formControlName="phone" maxlength="32">
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button type="button" class="btn btn-primary" (click)="placeOrder()">Bestellen</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+

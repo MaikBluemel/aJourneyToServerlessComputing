@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PizzasFromCloud</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+  <app-root></app-root>
+<script>
+  $(document).ready(function(){
+    $.ajax({
+      url: "https://cy284qw4ga.execute-api.us-east-1.amazonaws.com/default/offers",
+      type: 'GET',
+      headers: {'Access-Control-Allow-Origin':'*'},
+      context: document.body,
+      crossDomain: true
+    }).done(
+      function( data ) {
+        var items = [];
+        $.each( data, function( key, val ) {
+          items.push( "<li id='" + key + "'>" + val + "</li>" );
+        });
+
+        $( "<ul/>", {
+          "class": "myitems",
+          html: items.join( "" )
+        }).appendTo( "body" );
+    });
+});</script>
+</body>
+</html>

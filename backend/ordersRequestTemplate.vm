@@ -1,0 +1,7 @@
+{
+    "status": "$input.params('status')",
+    "size": "$input.params('size')",
+    "page": "$input.params('page')",
+    "sortKey": "$input.params('sortKey')",
+    "asc": "$input.params('asc')"
+}

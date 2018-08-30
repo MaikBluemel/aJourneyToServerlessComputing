@@ -1,0 +1,217 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: pizzasFromCloud # NOTE: update this with your service name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  region: eu-central-1
+  runtime: python2.7
+  iamRoleStatements:
+    - Effect: Allow
+      Action: lambda:InvokeFunction
+      Resource: arn:aws:lambda:*:*:function:*
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::Join:
+            - ':'
+            - - 'arn:aws:dynamodb'
+              - Ref: 'AWS::Region'
+              - Ref: 'AWS::AccountId'
+              - table/${self:custom.dynamodbTables.ordersTable.name}*
+        - Fn::Join:
+            - ':'
+            - - 'arn:aws:dynamodb'
+              - Ref: 'AWS::Region'
+              - Ref: 'AWS::AccountId'
+              - table/${self:custom.dynamodbTables.offersTable.name}
+
+
+custom:
+  dynamodbTables:
+    ordersTable:
+      name: orders-${opt:stage}
+    offersTable:
+      name: offers-${opt:stage}
+  s3Buckets:
+    s3BucketAppFrontend:
+        name: pizzas-from-cloud-${opt:stage}
+
+
+
+functions:
+  postOrder:
+    handler: postOrder.lambda_handler
+    memorySize: 512
+    timeout: 10
+    environment:
+      TABLE_NAME: ${self:custom.dynamodbTables.ordersTable.name}
+    events:
+      - http:
+          path: orders
+          method: post
+          integration: lambda
+          cors:
+            origin: '*'
+            headers:
+            - Content-Type
+            - X-Amz-Date
+            - Authorization
+            - X-Api-Key
+            - X-Amz-Security-Token
+            - X-Amz-User-Agent
+            allowCredentials: false
+          statusCodes:
+            200:
+              pattern: '' # Default response method
+  putOrder:
+    handler: putOrder.lambda_handler
+    memorySize: 512
+    timeout: 10
+    environment:
+      TABLE_NAME: ${self:custom.dynamodbTables.ordersTable.name}
+    events:
+    - http:
+        path: orders/{orderId}
+        method: put
+        integration: lambda
+        cors:
+          origin: '*'
+          headers:
+          - Content-Type
+          - X-Amz-Date
+          - Authorization
+          - X-Api-Key
+          - X-Amz-Security-Token
+          - X-Amz-User-Agent
+          allowCredentials: false
+        statusCodes:
+          200:
+            pattern: '' # Default response method
+        request:
+          parameters:
+            path:
+              orderId: true
+          template:
+            application/json: ${file(updateOrderRequestTemplate.vm)}
+  getOffers:
+    handler: getOffers.lambda_handler
+    memorySize: 512
+    timeout: 10
+    environment:
+      TABLE_NAME: ${self:custom.dynamodbTables.offersTable.name}
+    events:
+      - http:
+          path: offers
+          method: get
+          integration: lambda
+          cors:
+            origin: '*'
+            headers:
+            - Content-Type
+            - X-Amz-Date
+            - Authorization
+            - X-Api-Key
+            - X-Amz-Security-Token
+            - X-Amz-User-Agent
+            allowCredentials: false
+          statusCodes:
+            200:
+              pattern: '' # Default response method
+          response:
+            headers:
+              Content-Type: "'application/json'"
+            template: ${file(offersResponseTemplate.vm)}
+  getOrders:
+    handler: getOrders.lambda_handler
+    memorySize: 512
+    timeout: 10
+    environment:
+      TABLE_NAME: ${self:custom.dynamodbTables.ordersTable.name}
+    events:
+      - http:
+          path: orders
+          method: get
+          integration: lambda
+          cors:
+            origin: '*'
+            headers:
+            - Content-Type
+            - X-Amz-Date
+            - Authorization
+            - X-Api-Key
+            - X-Amz-Security-Token
+            - X-Amz-User-Agent
+            allowCredentials: false
+          statusCodes:
+            200:
+              pattern: '' # Default response method
+          request:
+            template:
+              application/json: ${file(ordersRequestTemplate.vm)}
+
+
+resources:
+  Resources:
+    ordersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamodbTables.ordersTable.name}
+        AttributeDefinitions:
+          - AttributeName: orderID
+            AttributeType: S
+          - AttributeName: orderStatus
+            AttributeType: S
+          - AttributeName: created_on
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orderID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+        - IndexName: statusIndex
+          KeySchema:
+          - AttributeName: orderStatus
+            KeyType: HASH
+          - AttributeName: created_on
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+    offersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamodbTables.offersTable.name}
+        AttributeDefinitions:
+        - AttributeName: offerID
+          AttributeType: S
+        KeySchema:
+        - AttributeName: offerID
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
