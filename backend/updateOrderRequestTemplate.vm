@@ -1,4 +1,0 @@
-{
-    "orderID": "$input.params().path.orderId",
-    "status": "$util.parseJson($input.body).status"
-}
