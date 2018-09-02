@@ -19,7 +19,7 @@ service: pizzasFromCloud # NOTE: update this with your service name
 
 provider:
   name: aws
-  region: eu-central-1
+  #region: eu-central-1
   runtime: python2.7
   iamRoleStatements:
     - Effect: Allow
