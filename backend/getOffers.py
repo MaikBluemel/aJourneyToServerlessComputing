@@ -7,7 +7,7 @@ import logging
 
 print('Loading function')
 dynamo = boto3.client('dynamodb')
-tableName =  os.environ['TABLE_NAME']
+tableName =  'offers'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
